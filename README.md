@@ -162,12 +162,13 @@ interface HttpClientConfig {
 ```
 
 #### 请求方法
-
-- `get<T>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>>`
-- `post<T>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method' | 'data'>): Promise<Response<T>>`
-- `put<T>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method' | 'data'>): Promise<Response<T>>`
-- `delete<T>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>>`
-- `patch<T>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method' | 'data'>): Promise<Response<T>>`
+```typescript
+get<T>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>>
+post<T>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method' | 'data'>): Promise<Response<T>>
+put<T>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method' | 'data'>): Promise<Response<T>>
+delete<T>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>>
+patch<T>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method' | 'data'>): Promise<Response<T>>
+```
 
 #### 请求配置
 

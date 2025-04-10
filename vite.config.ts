@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
+import dts from 'vite-plugin-dts'
 
 export default defineConfig({
   build: {
@@ -9,12 +10,24 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`
     },
     rollupOptions: {
-      external: ['axios'],
       output: {
         globals: {
-          axios: 'axios'
+          'node-fetch': 'fetch'
         }
       }
     }
-  }
+  },
+  plugins: [
+    dts({
+      include: ['src/index.ts', 'src/types.ts'],
+      outDir: 'dist',
+      insertTypesEntry: true,
+      copyDtsFiles: false,
+      cleanVueFileName: true,
+      compilerOptions: {
+        declaration: true,
+        emitDeclarationOnly: true
+      }
+    })
+  ]
 }) 
