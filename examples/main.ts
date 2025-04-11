@@ -90,7 +90,10 @@ window.testConcurrent = async () => {
     const responses = await Promise.all([
       client.get('/posts/1'),
       client.get('/posts/2'),
-      client.get('/posts/3')
+      client.get('/posts/3'),
+      client.get('/posts/11'),
+      client.get('/posts/22'),
+      client.get('/posts/33')
     ])
     document.getElementById('concurrentResponse')!.textContent = JSON.stringify(responses, null, 2)
   } catch (error) {

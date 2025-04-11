@@ -3,6 +3,8 @@ import { XHRAdapter } from './adapters/xhr'
 import { FetchAdapter } from './adapters/fetch'
 import { RequestQueue } from './queue'
 
+export * from './types'
+
 export class HttpClient {
   private config: HttpClientConfig
   private requestInterceptors: RequestInterceptor[] = []
