@@ -2,7 +2,7 @@ import { RequestConfig, Response } from '../types'
 
 export class FetchAdapter {
   async request<T>(config: RequestConfig): Promise<Response<T>> {
-    const { url, method = 'GET', headers = {}, data, timeout, withCredentials } = config
+    let { url, method = 'GET', headers = {}, data, timeout, withCredentials } = config
 
     // 创建 AbortController 用于超时控制
     const controller = new AbortController()
@@ -23,7 +23,11 @@ export class FetchAdapter {
 
     // 添加请求体
     if (data) {
-      requestConfig.body = data instanceof FormData ? data : JSON.stringify(data)
+      if(method === 'GET') {
+        url = `${url}?${new URLSearchParams(data).toString()}`
+      }else {
+        requestConfig.body = data instanceof FormData ? data : JSON.stringify(data)
+      }
     }
 
     try {
