@@ -55,7 +55,7 @@ export class HttpClient {
 
     for (const interceptor of this.responseInterceptors) {
       if (interceptor.onResponse) {
-        finalResponse = await interceptor.onResponse(finalResponse)
+        finalResponse = await interceptor.onResponse(finalResponse, config)
       }
     }
 
