@@ -62,7 +62,7 @@ export class HttpClient {
     return finalResponse
   }
 
-  private async request<T>(config: RequestConfig): Promise<Response<T>> {
+  async request<T>(config: RequestConfig): Promise<Response<T>> {
     try {
       // 处理请求拦截器
       const requestConfig = await this.processRequestInterceptors({
