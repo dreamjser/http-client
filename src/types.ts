@@ -25,8 +25,15 @@ export interface RequestInterceptor {
   onRequestError?: (error: any) => any
 }
 
+export interface ResponseConfig {
+  response: Response,
+  config: RequestConfig,
+  resolve: (value: Response) => void,
+  reject: (reason?: any) => void
+}
+
 export interface ResponseInterceptor {
-  onResponse?: <T>(response: Response<T>, config: RequestConfig) => Response<T> | Promise<Response<T>>
+  onResponse?: <T>(value: ResponseConfig) => Response<T> | Promise<Response<T>>
   onResponseError?: (error: any) => any
 }
 

@@ -17,8 +17,9 @@ client.useRequestInterceptor({
 
 // 添加响应拦截器
 client.useResponseInterceptor({
-  onResponse: (response) => {
+  onResponse: ({ response , config, resolve, reject}) => {
     console.log('响应拦截器:', response)
+    resolve(response)
     return response
   }
 })

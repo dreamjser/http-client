@@ -1,4 +1,4 @@
-import { HttpClientConfig, RequestConfig, RequestInterceptor, ResponseInterceptor, Response } from './types'
+import { HttpClientConfig, RequestConfig, RequestInterceptor, ResponseInterceptor, Response, ResponseConfig } from './types'
 import { XHRAdapter } from './adapters/xhr'
 import { FetchAdapter } from './adapters/fetch'
 import { RequestQueue } from './queue'
@@ -50,12 +50,12 @@ export class HttpClient {
     return finalConfig
   }
 
-  private async processResponseInterceptors<T>(response: Response<T>, config: RequestConfig): Promise<Response<T>> {
-    let finalResponse = { ...response }
+  private async processResponseInterceptors<T>(config: ResponseConfig): Promise<Response<T>> {
+    let finalResponse = { ...config.response }
 
     for (const interceptor of this.responseInterceptors) {
       if (interceptor.onResponse) {
-        finalResponse = await interceptor.onResponse(finalResponse, config)
+        finalResponse = await interceptor.onResponse(config)
       }
     }
 
@@ -63,41 +63,49 @@ export class HttpClient {
   }
 
   async request<T>(config: RequestConfig): Promise<Response<T>> {
-    try {
-      // 处理请求拦截器
-      const requestConfig = await this.processRequestInterceptors({
-        ...this.config,
-        ...config,
-        url: this.config.baseURL ? `${this.config.baseURL}${config.url}` : config.url
-      })
-
-      // 根据是否有进度监控需求选择适配器
-      const adapter = requestConfig.onUploadProgress || requestConfig.onDownloadProgress
-        ? this.xhrAdapter
-        : this.fetchAdapter
-
-      // 执行请求
-      const response = await this.queue.enqueue<T>(requestConfig, adapter)
-
-      // 处理响应拦截器
-      return this.processResponseInterceptors(response, requestConfig)
-    } catch (error) {
-      // 处理请求错误拦截器
-      for (const interceptor of this.requestInterceptors) {
-        if (interceptor.onRequestError) {
-          error = await interceptor.onRequestError(error)
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 处理请求拦截器
+        const requestConfig = await this.processRequestInterceptors({
+          ...this.config,
+          ...config,
+          url: this.config.baseURL ? `${this.config.baseURL}${config.url}` : config.url
+        })
+  
+        // 根据是否有进度监控需求选择适配器
+        const adapter = requestConfig.onUploadProgress || requestConfig.onDownloadProgress
+          ? this.xhrAdapter
+          : this.fetchAdapter
+  
+        // 执行请求
+        const response = await this.queue.enqueue<T>(requestConfig, adapter)
+  
+        // 处理响应拦截器
+        this.processResponseInterceptors({
+          response,
+          config: requestConfig,
+          resolve,
+          reject
+        })
+      } catch (error) {
+        // 处理请求错误拦截器
+        for (const interceptor of this.requestInterceptors) {
+          if (interceptor.onRequestError) {
+            error = await interceptor.onRequestError(error)
+          }
         }
-      }
-
-      // 处理响应错误拦截器
-      for (const interceptor of this.responseInterceptors) {
-        if (interceptor.onResponseError) {
-          error = await interceptor.onResponseError(error)
+  
+        // 处理响应错误拦截器
+        for (const interceptor of this.responseInterceptors) {
+          if (interceptor.onResponseError) {
+            error = await interceptor.onResponseError(error)
+          }
         }
+  
+        reject(error)
       }
-
-      throw error
-    }
+    })
+    
   }
 
   async get<T>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>> {
