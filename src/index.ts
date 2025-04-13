@@ -50,7 +50,7 @@ export class HttpClient {
     return finalConfig
   }
 
-  private async processResponseInterceptors<T>(response: Response<T>): Promise<Response<T>> {
+  private async processResponseInterceptors<T>(response: Response<T>, config: RequestConfig): Promise<Response<T>> {
     let finalResponse = { ...response }
 
     for (const interceptor of this.responseInterceptors) {
@@ -80,7 +80,7 @@ export class HttpClient {
       const response = await this.queue.enqueue<T>(requestConfig, adapter)
 
       // 处理响应拦截器
-      return this.processResponseInterceptors(response)
+      return this.processResponseInterceptors(response, requestConfig)
     } catch (error) {
       // 处理请求错误拦截器
       for (const interceptor of this.requestInterceptors) {
