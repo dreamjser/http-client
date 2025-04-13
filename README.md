@@ -125,8 +125,9 @@ client.useRequestInterceptor({
 
 // 添加响应拦截器
 client.useResponseInterceptor({
-  onResponse: (response) => {
+  onResponse: (value) => {
     // 处理响应数据
+    const { response, config } = value
     if (response.status === 200) {
       return response
     }
@@ -163,6 +164,10 @@ interface HttpClientConfig {
 
 #### 请求方法
 ```typescript
+// 通用请求方法
+request<T>(config: RequestConfig): Promise<Response<T>>
+
+// 快捷方法
 get<T>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>>
 post<T>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method' | 'data'>): Promise<Response<T>>
 put<T>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method' | 'data'>): Promise<Response<T>>
@@ -206,8 +211,15 @@ interface RequestInterceptor {
   onRequestError?: (error: any) => any
 }
 
+interface ResponseConfig {
+  response: Response
+  config: RequestConfig
+  resolve: (value: Response) => void
+  reject: (reason?: any) => void
+}
+
 interface ResponseInterceptor {
-  onResponse?: <T>(response: Response<T>) => Response<T> | Promise<Response<T>>
+  onResponse?: <T>(value: ResponseConfig) => Response<T> | Promise<Response<T>>
   onResponseError?: (error: any) => any
 }
 ```

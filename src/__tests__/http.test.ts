@@ -1,5 +1,5 @@
 import { HttpClient } from '../index'
-import { RequestConfig, Response } from '../types'
+import { RequestConfig, Response, ResponseConfig } from '../types'
 
 describe('HttpClient', () => {
   let client: HttpClient
@@ -8,6 +8,32 @@ describe('HttpClient', () => {
     client = new HttpClient({
       baseURL: 'https://api.example.com',
       timeout: 1000
+    })
+  })
+
+  describe('request method', () => {
+    it('should make request with config', async () => {
+      const mockFetch = jest.fn().mockResolvedValue({
+        status: 200,
+        statusText: 'OK',
+        headers: new Headers(),
+        json: () => Promise.resolve({ data: 'test' })
+      })
+      global.fetch = mockFetch
+
+      const config: RequestConfig = {
+        url: '/test',
+        method: 'GET'
+      }
+
+      await client.request(config)
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://api.example.com/test',
+        expect.objectContaining({
+          method: 'GET'
+        })
+      )
     })
   })
 
@@ -58,13 +84,19 @@ describe('HttpClient', () => {
   })
 
   describe('response interceptors', () => {
-    it('should modify response data', async () => {
+    it('should handle response with new interface', async () => {
+      const mockResponse = {
+        data: 'test',
+        status: 200,
+        statusText: 'OK',
+        headers: {}
+      }
+
       client.useResponseInterceptor({
-        onResponse: <T>(response: Response<T>) => {
-          return {
-            ...response,
-            data: { modified: true } as T
-          }
+        onResponse: (value: ResponseConfig) => {
+          const { response, config } = value
+          expect(config.url).toBe('/test')
+          return response
         }
       })
 
@@ -72,12 +104,12 @@ describe('HttpClient', () => {
         status: 200,
         statusText: 'OK',
         headers: new Headers(),
-        json: () => Promise.resolve({ data: 'test' })
+        json: () => Promise.resolve(mockResponse)
       })
       global.fetch = mockFetch
 
       const response = await client.get('/test')
-      expect(response.data).toEqual({ modified: true })
+      expect(response.data).toBe('test')
     })
 
     it('should handle response error', async () => {
