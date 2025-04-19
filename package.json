@@ -8,6 +8,12 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dreamjser/http-client.git"
+  },
+  "author": "dreamjser@gmail.com",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
