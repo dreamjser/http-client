@@ -4,7 +4,6 @@ export interface RequestConfig {
   url: string
   method?: HttpMethod
   headers?: Record<string, string>
-  params?: Record<string, any>
   data?: any
   timeout?: number
   withCredentials?: boolean
